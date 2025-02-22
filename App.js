@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, ScrollView } from "react-native";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native"
+import { TextInput } from "react-native";
 
 const Stack = createStackNavigator();
 
@@ -69,11 +70,34 @@ const HomeScreen = ({ navigation }) => {
   );};
 export { HomeScreen };
 
-const SearchScreen = () => (
+
+//검색 스크린
+const SearchScreen = ({navigation}) => {
+  const [searchText, setSearchText] = React.useState("");
+  return (
   <View style={styles.SearchCon}>
-    <Text style={styles.search}>검색창</Text>
+    {/* 검색창 영역 */}
+    <View style={styles.searchBarCon}>
+      <Button title="⇦" color="#000000" 
+              onPress={() => navigation.navigate("Home")}/>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="검색어 또는 URL 입력"
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+      <Button title="🔍"
+              onPress={() => navigation.navigate("Home")}/>
+      </View>
+      {/* 기록 영역 */}
+      <View style={styles.historyCon}>
+      <Text style={styles.history}>최근 검색어</Text>
+      </View>
   </View>
-);
+  );
+  };
+export {SearchScreen};
+
 
 const FavoriteScreen = () => (
   <View style={styles.FavoriteCon}>
@@ -92,8 +116,8 @@ const NavigationSection = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Search" component={SearchScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Favorites" component={FavoriteScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
@@ -175,23 +199,42 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 15,
   },
-
   navItem: {
     flex: 1,
     alignItems: "center",
   },
   SearchCon: {
     flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    padding: 10,
+    marginTop: 60,
   },
-  search: {
-    fontSize: 50,
-    textAlign: "center",
+  searchBarCon: {
+    flexDirection: "row",  
+    alignItems: "center",   
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderBottomColor: "#ddd",
+    borderRadius: 50,
+    paddingHorizontal: 10,
+    width: "100%",
   },
-  
+  searchInput: {
+    flex: 1,  
+    height: 40,
+    fontSize: 16,
+    marginLeft: 10, 
+  },
+  historyCon: {
+    flex: 1,
+    width: "100%",
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+    marginTop: 15,
+  },
+  history: {
+    fontSize: 16,
+    marginTop: 15,
+  },
   FavoriteCon: {
     flex: 1,
     backgroundColor: "#fff",
