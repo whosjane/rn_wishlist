@@ -74,26 +74,26 @@ export { HomeScreen };
 //검색 스크린
 const SearchScreen = ({navigation}) => {
   const [searchText, setSearchText] = React.useState("");
-  return (
-  <View style={styles.SearchCon}>
-    {/* 검색창 영역 */}
-    <View style={styles.searchBarCon}>
-      <Button title="⇦" color="#000000" 
-              onPress={() => navigation.navigate("Home")}/>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="검색어 또는 URL 입력"
-        value={searchText}
-        onChangeText={setSearchText}
-      />
-      <Button title="🔍"
-              onPress={() => navigation.navigate("Home")}/>
-      </View>
-      {/* 기록 영역 */}
-      <View style={styles.historyCon}>
-      <Text style={styles.history}>최근 검색어</Text>
-      </View>
-  </View>
+   return (
+    <View style={styles.SearchCon}>
+     {/* 검색창 영역 */}
+     <View style={styles.searchBarCon}>
+       <Button title="⇦" color="#000000" 
+               onPress={() => navigation.navigate("Home")}/>
+       <TextInput
+         style={styles.searchInput}
+         placeholder="검색어 또는 URL 입력"
+         value={searchText}
+         onChangeText={setSearchText}
+       />
+       <Button title="🔍"
+               onPress={() => navigation.navigate("Home")}/>
+       </View>
+       {/* 기록 영역 */}
+       <View style={styles.historyCon}>
+       <Text style={styles.history}>최근 검색어</Text>
+       </View>
+   </View>
   );
   };
 export {SearchScreen};
