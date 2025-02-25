@@ -4,6 +4,11 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native"
 import { TextInput } from "react-native";
+import { useRoute } from "@react-navigation/native";
+import { useState } from "react";
+
+
+
 
 const Stack = createStackNavigator();
 const dummyFeed = [
@@ -14,6 +19,9 @@ const dummyFeed = [
     wishlist: [
       { id: 1, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 1", price: "₩10,000" },
       { id: 2, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 2", price: "₩20,000" },
+      { id: 3, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 3", price: "₩30,000" },
+      { id: 4, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 4", price: "₩40,000" },
+
     ],
     likes: 20,
   },
@@ -22,7 +30,7 @@ const dummyFeed = [
     user: "user 2",
     profileImage: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     wishlist: [
-      { id: 1, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 3", price: "₩30,000" },
+      { id: 1, image: "https://images.unsplash.com/photo-1601066551508-6d9cb1b9de65?q=80&w=2476&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "아이템 5", price: "₩50,000" },
     ],
     likes: 15,
   },
@@ -67,32 +75,20 @@ const HomeScreen = ({ navigation }) => {
 
       {/* 피드 영역 */}
       <View style={styles.feedCon}>
-       <Text style={styles.feed}>모아보기</Text>
+      <Text style={styles.feed}>모아보기</Text>
        <FlatList
          data={dummyFeed}
          keyExtractor={(item) => item.id.toString()}
-         horizontal={true} // 가로 스크롤
+         horizontal
          renderItem={({ item }) => (
          <TouchableOpacity
-          style={styles.userBox}
-          onPress={() => navigation.navigate('Wishlist', { userId: item.id })}
-         >
-        {/* 사용자 아이템 이미지 리스트 */}
-         <FlatList
-           data={item.wishlist}
-           keyExtractor={(wishlistItem) => wishlistItem.id.toString()}
-           horizontal={true}
-           renderItem={({ item: wishlistItem }) => (
-          <Image source={{ uri: wishlistItem.image }} style={styles.itemImage} />
-          )}
-         />
-        {/* 사용자 이름 */}
-         <Text style={styles.userName}>{item.user}</Text>
+           style={styles.userBox}
+                  onPress={() => navigation.navigate("Wishlist", { userId: item.id })}
+         >  
          </TouchableOpacity>
          )}
       />
-</View>
-      
+      </View>
 
       {/* 하단탭 영역 */}
       <View style={styles.bottomCon}>
@@ -169,18 +165,40 @@ const SearchScreen = ({navigation}) => {
   };
 export {SearchScreen};
 
-//위시리스트
+//위시리스트 스크린
 const WishlistScreen = ({ navigation }) => {
-  const [searchText, setSearchText] = React.useState("");
+  const route = useRoute();
+  const { userId } = route.params || {};
+  const [searchText, setSearchText] = useState("");
+
+  const user = dummyFeed.find((user) => user.id === userId);
+
   return (
     <View style={styles.wishlistCon}>
-      {/* 버튼 그룹 */}
-      <View style={styles.wishlistBtnGroup}>
-        {["내 위시리스트", "브랜드"].map((title) => (
-          <View style={styles.btnWrapper} key={title}>
-            <Button title={title} color="#000000" />
+
+      {/* 유저 정보 */}
+      <View style={styles.feedOwnerInfoCon}>
+      <Text style={styles.userName}>@{user?.user}</Text>
+      </View>
+      
+      {/* 유저 위시리스트 레이아웃 */}
+      <View style={styles.userWishlistFeedCon}>
+       {/* 아이템들이 2개씩 세로로 나열 */}
+       <View style={styles.itemsRow}>
+         {user?.wishlist.slice().reverse().map((item, index) => (
+          <View key={item.id}
+                style={[styles.itemContainer,
+                      { marginLeft: index % 2 === 0 ? 0 : 10 }, // 두 번째 아이템에만 간격을 주기
+                      ]}
+          >
+        {/* 아이템 이미지 */}
+        <Image source={{ uri: item.image }} style={styles.itemImage} />
+        {/* 아이템 정보 */}
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemPrice}>{item.price}</Text>
           </View>
         ))}
+       </View>
       </View>
 
       {/* 하단탭 영역 */}
@@ -192,13 +210,13 @@ const WishlistScreen = ({ navigation }) => {
                 title={icon}
                 onPress={() => {
                   if (index === 0) {
-                    navigation.navigate("Home"); 
+                    navigation.navigate("Home");
                   } else if (index === 1) {
-                    navigation.navigate("Search"); 
+                    navigation.navigate("Search");
                   } else if (index === 2) {
-                    navigation.navigate("Wishlist"); 
+                    navigation.navigate("Wishlist");
                   } else if (index === 3) {
-                    navigation.navigate("Profile"); 
+                    navigation.navigate("Profile");
                   }
                 }}
               />
@@ -209,6 +227,7 @@ const WishlistScreen = ({ navigation }) => {
     </View>
   );
 };
+
 export { WishlistScreen };
 
 
@@ -325,61 +344,27 @@ const styles = StyleSheet.create({
   feedCon: {
     flex: 3,
     width: "100%",
-    marginVertical: 20,
+    marginTop: 20,
   },
   feed: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
   },
-  userFeedContainer: {
-    width: 120,  
-    height: 150,
-    borderRadius: 10,  
-    marginRight: 10,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  userContainer: {
-    backgroundColor: "#f4f4f4",
-    borderRadius: 10,
-    padding: 10,
-    alignItems: "center",
-    marginHorizontal: 5,
-  },
   userBox: {
     padding: 10,
-    borderRadius: 10, // 박스 모서리
-    alignItems: "center", // 내부 아이템이미지 중앙 정렬
-    justifyContent: "center",
-    marginRight: 10, // 박스 사이 간격 조절
-    width: 120, // 네모 박스 크기
-    height: 140,
+    borderRadius: 10,
+    alignItems: "center",
+    marginRight: 10,
+    width: 150,  
+    height: 200,
     borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  userName: {
-    fontSize: 14,
+    borderColor: "#ddd",    
   },
   wishlistItem: {
     marginRight: 10,
     alignItems: "center",
     width: 100,
-  },
-  itemImage: {
-    width: 50,  
-    height: 50,
-    marginBottom: 3,
-  },
-  itemName: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: "#888",
-    marginBottom: 5,
   },
   bottomCon: {
     flexDirection: "row",
@@ -440,11 +425,51 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 60,
   },
-  wishlistBtnGroup: {
+  feedOwnerInfoCon: { 
+    padding: 20, 
+    alignItems: "center",   
+    borderColor: "#ccc",
+    borderBottomColor: "#ddd",
+    borderBottomWidth: 1,
+    borderTopColor: "#ddd",
+  },
+  userName: {
+    fontSize: 14,
+  },
+  userWishlistFeedCon: {
+    flex: 3,
+    marginTop: 30,
+    width: "100%",
+  },
+  itemsRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 100,
+    flexWrap: "wrap", // 아이템박스 넘칠 경우 자동으로 새로운 줄 배치
+    justifyContent: "space-between", // 아이템박스 사이 공간
+  },
+  itemContainer: {
+    alignItems: "center",
+    justifyContent: "flex-start",
+    padding: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    width: "48%", //
+    marginVertical: 5, // userInfoFeed 사이 공간
+    height: 300, // 박스 높이 고정값
+  },
+  itemImage: {
+    width: "100%", 
+    height: "70%",
+    marginBottom: 5, 
+  },
+  itemName: {
+    fontSize: 14,
+    marginTop: 5,
+  },
+  itemPrice: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "000",
   },
   profileCon: {
     flex: 1,
