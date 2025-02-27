@@ -39,6 +39,11 @@ const dummyFeed = [
 // 홈스크린
 const HomeScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const route = useRoute();
+  const { userId } = route.params || {};
+  const [searchText, setSearchText] = useState("");
+
+  const user = dummyFeed.find((user) => user.id === userId);
 
   return (
     <View style={styles.HomeCon}>
@@ -75,20 +80,42 @@ const HomeScreen = ({ navigation }) => {
 
       {/* 피드 영역 */}
       <View style={styles.feedCon}>
-      <Text style={styles.feed}>모아보기</Text>
-       <FlatList
-         data={dummyFeed}
-         keyExtractor={(item) => item.id.toString()}
-         horizontal
-         renderItem={({ item }) => (
-         <TouchableOpacity
-           style={styles.userBox}
-                  onPress={() => navigation.navigate("Wishlist", { userId: item.id })}
-         >  
-         </TouchableOpacity>
-         )}
-      />
-      </View>
+  <Text style={styles.feed}>모아보기</Text>
+  <FlatList
+    data={dummyFeed}
+    keyExtractor={(item) => item.id.toString()}
+    horizontal
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        style={styles.userBox}
+        onPress={() => navigation.navigate("Wishlist", { userId: item.id })}
+      >
+        {/* 미니 위시리스트 */}
+        <View style={styles.userWishlistFeedConMini}>
+          <View style={styles.miniItemsRow}>
+            {item.wishlist.slice().reverse().map((wishlistItem, index) => (
+              <View key={wishlistItem.id}
+                    style={styles.miniItemContainer}>
+                <Image
+                  source={{ uri: wishlistItem.image }}
+                  style={styles.miniItemImage}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
+        {/* 유저 정보 */}
+        <View style={styles.feedOwnerInfoConMini}>
+          <Text style={styles.userName}>@{item.user}</Text>
+        </View>
+
+      </TouchableOpacity>
+    )}
+  />
+</View>
+
+       
+    
 
       {/* 하단탭 영역 */}
       <View style={styles.bottomCon}>
@@ -188,7 +215,7 @@ const WishlistScreen = ({ navigation }) => {
          {user?.wishlist.slice().reverse().map((item, index) => (
           <View key={item.id}
                 style={[styles.itemContainer,
-                      { marginLeft: index % 2 === 0 ? 0 : 10 }, // 두 번째 아이템에만 간격을 주기
+                      { marginLeft: index % 2 === 0 ? 0 : 10 }, // 두 번째 아이템에만 간격 주기
                       ]}
           >
         {/* 아이템 이미지 */}
@@ -196,7 +223,7 @@ const WishlistScreen = ({ navigation }) => {
         {/* 아이템 정보 */}
         <Text style={styles.itemName}>{item.name}</Text>
         <Text style={styles.itemPrice}>{item.price}</Text>
-          </View>
+        </View>
         ))}
        </View>
       </View>
@@ -352,19 +379,57 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userBox: {
+    width: 150, // 개별 피드 박스 크기
+    height: 200,
     padding: 10,
     borderRadius: 10,
-    alignItems: "center",
     marginRight: 10,
-    width: 150,  
-    height: 200,
     borderWidth: 1,
-    borderColor: "#ddd",    
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
   },
-  wishlistItem: {
-    marginRight: 10,
-    alignItems: "center",
-    width: 100,
+  userWishlistFeedConMini: {
+    flex: 3,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",  // 너비를 100%로 설정
+    height: "100%", // 높이를 명확하게 지정
+    padding: 0,
+    margin: 0,
+  },
+  userName: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  userWishlistFeedConMini: {
+    flex: 3,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    padding: 0,  // 내부 여백 제거
+    margin: 0,
+  },
+  miniItemsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    width: "100%",  // 너비 지정
+    height: "100%", // 높이 지정
+    margin: 0,
+    padding: 0,
+  },
+  miniItemContainer: {
+    width: 60, // 정확한 픽셀 크기 지정
+    height: 60, // 높이도 동일하게 설정
+    overflow: "hidden",
+    margin: 0,
+    padding: 0,
+  },
+  miniItemImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   bottomCon: {
     flexDirection: "row",
